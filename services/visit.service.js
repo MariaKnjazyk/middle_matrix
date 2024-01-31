@@ -1,6 +1,5 @@
-const moment = require(moment);
+const moment = require('moment');
 const { ScheduledVisit } = require('../models');
-const { enums } = require('../configs');
 
 module.exports = {
     createSearchQuery: (query) => {
@@ -11,15 +10,6 @@ module.exports = {
         if (query.dayTimeSlot) {
             searchQuery.date = { $gte: moment(query.dayTimeSlot).startOf('day'), $lte: moment(query.dayTimeSlot).endOf('day') }
         }
-        //
-        // const scheduledVisits = await ScheduledVisit.find().select('doctor');
-        //
-        // if (query.timeSlotToDate) {
-        //     const scheduledVisits = await ScheduledVisit.find({ date: timeSlotToDate }).select('doctor');
-        //     const busyDoctorsIds = scheduledVisits.map(visit => visit.doctor);
-        //
-        //     searchQuery._id = { $nin: busyDoctorsIds };
-        // }
 
         return searchQuery;
     },
@@ -40,7 +30,7 @@ module.exports = {
         if (searchQuery.date) {
             return freeHours.reduce((acc,hour) => {
                 if(!notFreeHours.includes(hour)) {
-                    acc.push(moment(searchQuery.dayTimeSlot).hours(hour));
+                    acc.push(moment(searchQuery.dayTimeSlot).set({ hour,minute:0,second:0,millisecond:0 }));
                 }
 
                 return acc;

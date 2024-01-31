@@ -7,7 +7,15 @@ const { enums: { USER_ROLES } } = require('../configs')
 
 router.route('/')
     .get(celebrate(visitValidator.getList), visitController.getTimeSlots)
-    .post(celebrate(visitValidator.create), authMiddleware.validateToken(),  userMiddleware.checkUserAccess([USER_ROLES.DOCTOR, USER_ROLES.HEAD_DOCTOR]), visitMiddleware.isTimeSlotNotFree, visitController.create);
+    .post(
+        celebrate(visitValidator.create),
+        authMiddleware.validateToken(),
+        userMiddleware.checkUserAccess([]),
+        visitMiddleware.isTimeSlotNotFree,
+        userMiddleware.getUserByDynamicParam('doctor', 'body', '_id'),
+        userMiddleware.isUserPresent(),
+        visitController.create
+    );
 
 
 module.exports = router;

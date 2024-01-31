@@ -1,11 +1,8 @@
 const moment = require('moment');
 const {
-    constants: { NEED_ITEM, AUTH },
-    dataIn: { BODY },
-    errorMessage,
-    statusCodes
+    enums: { ERROR_CODES }
 } = require('../configs');
-const { ErrorHandler } = require('../errors/ErrorHandler');
+const ErrorHandler = require('../errors/ErrorHandler');
 const { ScheduledVisit } = require('../models');
 
 module.exports = {
@@ -15,7 +12,7 @@ module.exports = {
                 req.query.timeSlotToDate = moment(req.query.timeSlot).toDate();
 
                 if (moment(req.query.timeSlotToDate).isBefore(moment())) {
-                    throw new ErrorHandler(400, 'time is past');
+                    throw new ErrorHandler(ERROR_CODES.BAD_REQUEST, 'time is past');
                 }
             }
             next();
@@ -33,7 +30,7 @@ module.exports = {
             const scheduledVisit = await ScheduledVisit.findOne({ date: req.body.timeSlotToDate, doctor }).select('_id');
 
             if (scheduledVisit) {
-                throw new ErrorHandler(409, 'timeSlot is not free');
+                throw new ErrorHandler(ERROR_CODES.CONFLICT, 'timeSlot is not free');
             }
 
             next();

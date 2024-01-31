@@ -12,7 +12,7 @@ module.exports = {
         }
 
         if (query.timeSlotToDate) {
-            const scheduledVisits = await ScheduledVisit.find({ date: timeSlotToDate }).select('doctor');
+            const scheduledVisits = await ScheduledVisit.find({ date: query.timeSlotToDate }).select('doctor');
             const busyDoctorsIds = scheduledVisits.map(visit => visit.doctor);
 
             searchQuery._id = { $nin: busyDoctorsIds };

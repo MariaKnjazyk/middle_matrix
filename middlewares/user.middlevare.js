@@ -1,24 +1,19 @@
-const moment = require('moment');
 const {
-    constants: { NEED_ITEM, AUTH },
-    dataIn: { BODY },
-    errorMessage,
-    statusCodes
+    enums: { ERROR_CODES }
 } = require('../configs');
-const { ErrorHandler } = require('../errors/ErrorHandler');
+const ErrorHandler = require('../errors/ErrorHandler');
 const { User } = require('../models');
+const {USER_ROLES} = require("../configs/enums");
 
 module.exports = {
     checkUserAccess: (rolesArr = []) => (req, res, next) => {
         try {
             const { loginUser, user } = req;
 
-            if (loginUser._id.toString() === user._id.toString()) return next();
-
             if (!rolesArr.length) return next();
 
             if (!rolesArr.includes(loginUser.role)) {
-                throw new ErrorHandler(statusCodes.FORBIDDEN, errorMessage.FORBIDDEN);
+                throw new ErrorHandler(ERROR_CODES.FORBIDDEN, 'forbidden');
             }
 
             next();
@@ -27,7 +22,7 @@ module.exports = {
         }
     },
 
-    getUserByDynamicParam: (paramName, dataIn = BODY, dbFiled = paramName) => async (req, res, next) => {
+    getUserByDynamicParam: (paramName, dataIn = 'body', dbFiled = paramName) => async (req, res, next) => {
         try {
             let data = req[dataIn][paramName];
 
@@ -48,13 +43,31 @@ module.exports = {
             const { user } = req;
 
             if (!user && isUserNeed) {
-                if (!auth) throw new ErrorHandler(statusCodes.NOT_FOUND, errorMessage.NOT_FOUND);
+                if (!auth) throw new ErrorHandler(ERROR_CODES.NOT_FOUND, 'not found');
 
-                throw new ErrorHandler(statusCodes.NOT_FOUND, errorMessage.WRONG_PASSW_OR_EMAIL);
+                throw new ErrorHandler(ERROR_CODES.NOT_FOUND, 'wrong password or email');
             }
 
             if (user && !isUserNeed) {
-                throw new ErrorHandler(statusCodes.CONFLICT, errorMessage.EXIST_EMAIL);
+                throw new ErrorHandler(ERROR_CODES.CONFLICT, 'exists email');
+            }
+
+            next();
+        } catch (e) {
+            next(e);
+        }
+    },
+
+    checkUserRole: (req, res, next) => {
+        try {
+            const { loginUser, body } = req;
+
+            if (loginUser.role === USER_ROLES.HEAD_DOCTOR) {
+                return next();
+            }
+
+            if (body.role === USER_ROLES.DOCTOR) {
+                throw new ErrorHandler(ERROR_CODES.FORBIDDEN, 'forbidden');
             }
 
             next();

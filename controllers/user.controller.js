@@ -13,4 +13,14 @@ module.exports = {
             next(e);
         }
     },
+
+    create: async (req, res, next) => {
+        try {
+            const user = await User.createWithHashPassword(req.body);
+
+            res.json(user);
+        } catch (e) {
+            next(e);
+        }
+    },
 }

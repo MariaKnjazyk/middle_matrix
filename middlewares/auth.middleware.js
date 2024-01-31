@@ -1,28 +1,28 @@
 const {
-    constants: { AUTHORIZATION, TOKEN_TYPE_ACCESS },
-    databaseTablesEnum: { USER },
-    errorMessage,
-    statusCodes
+    constants: { TOKEN_TYPE_ACCESS },
+    enums: { ERROR_CODES }
 } = require('../configs');
-const { ErrorHandler } = require('../errors');
+const ErrorHandler = require('../errors/ErrorHandler');
 const { jwtService: { verifyToken } } = require('../services');
 const { OAuth } = require('../models');
 
 module.exports = {
     validateToken: (tokenType = TOKEN_TYPE_ACCESS) => async (req, res, next) => {
         try {
-            const token = req.get(AUTHORIZATION);
+            const token = req.get('Authorization');
 
             if (!token) {
-                throw new ErrorHandler(statusCodes.NOT_VALID_TOKEN, errorMessage.NO_TOKEN);
+                throw new ErrorHandler(ERROR_CODES.NOT_VALID_TOKEN, 'no token');
             }
 
-            await verifyToken(token, tokenType);
+            const splitToken = token.split(' ')[1];
 
-            const tokenFromDB = await OAuth.findOne({ [tokenType]: token }).populate('user');
+            await verifyToken(splitToken, tokenType);
+
+            const tokenFromDB = await OAuth.findOne({ [tokenType]: splitToken }).populate('user');
 
             if (!tokenFromDB) {
-                throw new ErrorHandler(statusCodes.NOT_VALID_TOKEN, errorMessage.NOT_VALID_TOKEN);
+                throw new ErrorHandler(ERROR_CODES.NOT_VALID_TOKEN, 'not valid token');
             }
 
             req.loginUser = tokenFromDB.user;

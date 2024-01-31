@@ -2,9 +2,8 @@ const jwt = require('jsonwebtoken');
 
 const {
     constants: { TOKEN_TYPE_ACCESS },
-    errorMessage,
-    statusCodes,
-    variables: { ACCESS_SECRET_KEY, REFRESH_SECRET_KEY }
+    configs: { ACCESS_SECRET_KEY, REFRESH_SECRET_KEY },
+    enums: { ERROR_CODES }
 } = require('../configs');
 const ErrorHandler = require('../errors/ErrorHandler');
 
@@ -25,7 +24,7 @@ module.exports = {
 
             await jwt.verify(token, secret);
         } catch (e) {
-            throw new ErrorHandler(statusCodes.NOT_VALID_TOKEN, errorMessage.NOT_VALID_TOKEN);
+            throw new ErrorHandler(ERROR_CODES.NOT_VALID_TOKEN, 'not valid token');
         }
     }
 };

@@ -1,13 +1,11 @@
 const { model, Schema } = require('mongoose');
 const _ = require('lodash');
 
-const { enums, constants: { OMIT_FIELD } } = require('../configs');
+const { enums, constants: { OMIT_FIELDS } } = require('../configs');
 const passwordService = require('../services/password.service');
 
 const userSchema = new Schema({
     name: { type: String, trim: true, required: true },
-
-    phone: { type: String, trim: true },
 
     email: { type: String, trim: true, lowercase: true, required: true },
 

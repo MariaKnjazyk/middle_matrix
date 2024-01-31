@@ -18,13 +18,13 @@ module.exports = {
 
     create: async (req, res, next) => {
         try {
-            const { body: { doctor, timeSlotToDate }, user } = req;
+            const { body: { doctor, timeSlotToDate }, loginUser } = req;
 
-            const scheduledVisit = await ScheduledVisit.create({ doctor, date: timeSlotToDate, user: user._id });
+            const scheduledVisit = await ScheduledVisit.create({ doctor, date: timeSlotToDate, patient: loginUser._id });
 
             res.json({ scheduledVisit });
         } catch (e) {
-            next()
+            next(e)
         }
     }
 }
